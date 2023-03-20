@@ -22,7 +22,7 @@ ZBUS_CHAN_DEFINE(PAYLOAD_CHAN,
 		 struct payload,
 		 NULL,
 		 NULL,
-		 ZBUS_OBSERVERS(transport, transport IF_ENABLED(CONFIG_MQTT_SAMPLE_LED, (, led))), /*I included the led part, cause in order to controll the led, we need to have access to the Payload*/
+		 ZBUS_OBSERVERS(transport), /*I included the led part, cause in order to controll the led, we need to have access to the Payload*/
 		 ZBUS_MSG_INIT(0)
 );
 
@@ -40,4 +40,11 @@ ZBUS_CHAN_DEFINE(FATAL_ERROR_CHAN,
 		 NULL,
 		 ZBUS_OBSERVERS(error),
 		 ZBUS_MSG_INIT(0)
+);
+ZBUS_CHAN_DEFINE(RECEIVE_CHAN, 
+		struct payload, 
+		NULL, 
+		NULL, 
+		ZBUS_OBSERVERS(transport IF_ENABLED(CONFIG_MQTT_SAMPLE_LED, (, led))), 
+		ZBUS_MSG_INIT(0)
 );

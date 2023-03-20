@@ -87,8 +87,9 @@ static void on_mqtt_publish(struct mqtt_helper_buf topic, struct mqtt_helper_buf
 							 payload.ptr,
 							 topic.size,
 							 topic.ptr);
+	zbus_chan_pub(&RECEIVE_CHAN, payload.ptr, K_SECONDS(1));
+	
 }
-
 static void on_mqtt_suback(uint16_t message_id, int result)
 {
 	if ((message_id == SUBSCRIBE_TOPIC_ID) && (result == 0)) {
