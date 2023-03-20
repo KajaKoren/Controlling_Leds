@@ -6,6 +6,8 @@
 
 #ifndef _MESSAGE_CHANNEL_H_
 #define _MESSAGE_CHANNEL_H_
+/*Trying to control led over MQTT, think I need to include this*/
+#define LED_CONTROL_OVER_MQTT          LED_1_GREEN /*The LED to control over MQTT*/
 
 #include <zephyr/kernel.h>
 #include <zephyr/sys/reboot.h>

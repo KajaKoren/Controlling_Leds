@@ -12,12 +12,14 @@
 #include "message_channel.h"
 
 /* Register log module */
-LOG_MODULE_REGISTER(led, CONFIG_MQTT_SAMPLE_LED_LOG_LEVEL);
+LOG_MODULE_REGISTER(led, 4);
 
 const static struct device *led_device = DEVICE_DT_GET_ANY(gpio_leds);
 
 /* LED 1, green on Thingy:91 boards. */
 #define LED_1_GREEN 1
+/*static uint8_t payload_buf[CONFIG_MQTT_PAYLOAD_BUFFER_SIZE];*/
+struct payload payload;
 
 void led_callback(const struct zbus_channel *chan)
 {
@@ -40,6 +42,7 @@ void led_callback(const struct zbus_channel *chan)
 			if (err) {
 				LOG_ERR("led_on, error: %d", err);
 			}
+			LOG_DBG("NETWORK CONNECTED");
 			break;
 		case NETWORK_DISCONNECTED:
 			err = led_off(led_device, LED_1_GREEN);
@@ -52,6 +55,27 @@ void led_callback(const struct zbus_channel *chan)
 			break;
 		}
 	}
+
+	if(&PAYLOAD_CHAN == chan){
+		const struct payload payload;
+		payload = zbus_chan_const_msg(&PAYLOAD_CHAN, &payload, K_SECONDS(1));
+			if (err) {
+				LOG_ERR("zbus_chan_read, error: %d", err);
+				SEND_FATAL_ERROR();
+				return;
+			}
+
+		
+		LOG_DBG("payload %s", payload.string);
+
+		if(strncmp(payload.string,CONFIG_TURN_LED_ON_CMD,sizeof(CONFIG_TURN_LED_ON_CMD)-1) == 0){
+				led_on(led_device, LED_1_GREEN);
+			}
+		else if(strncmp(payload.string,CONFIG_TURN_LED_OFF_CMD,sizeof(CONFIG_TURN_LED_OFF_CMD)-1) == 0){
+			led_off(led_device, LED_1_GREEN);
+		}
+	}
+
 }
 
 /* Register listener - led_callback will be called everytime a channel that the module listens on

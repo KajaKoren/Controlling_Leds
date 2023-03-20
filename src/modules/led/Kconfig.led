@@ -15,4 +15,16 @@ module = MQTT_SAMPLE_LED
 module-str = LED
 source "subsys/logging/Kconfig.template.log_config"
 
+config TURN_LED_ON_CMD
+	string "Command to turn on LED"
+	default "LED1ON"
+
+config TURN_LED_OFF_CMD
+	string "Command to turn off LED"
+	default "LED1OFF"
+
+# # config MQTT_PAYLOAD_BUFFER_SIZE
+# 	int "MQTT payload buffer size"
+# 	default 128
+
 endif # MQTT_SAMPLE_LED
