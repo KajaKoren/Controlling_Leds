@@ -58,7 +58,7 @@ void led_callback(const struct zbus_channel *chan)
 
 	if(&RECEIVE_CHAN == chan){
 
-		printk("Funsie %s \n", chan);
+		
 
 		const struct payload *payload;
 		payload = zbus_chan_const_msg(chan);
@@ -68,8 +68,6 @@ void led_callback(const struct zbus_channel *chan)
 				return;
 			}
 
-		
-		LOG_DBG("payload %s", payload);
 
 		if(strncmp(payload,CONFIG_TURN_LED_ON_CMD,sizeof(CONFIG_TURN_LED_ON_CMD)-1) == 0){
 				led_on(led_device, LED_1_GREEN);
