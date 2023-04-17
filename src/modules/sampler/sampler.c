@@ -7,10 +7,12 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/zbus/zbus.h>
-
+#include <nrf/applications/asset_tracker_v2/src/ext_sensors/ext_sensors.h> // This is added to access the library of Asset trackeren 
+#include <nrf/applications/asset_tracker_v2/src/ext_sensors/ext_sensors_bsec.h>
 #include "message_channel.h"
 
 #define FORMAT_STRING "Hello MQTT! Current uptime is: %d"
+#define TEMP_STRING "The temperature now is: %lf "
 
 /* Register log module */
 LOG_MODULE_REGISTER(sampler, CONFIG_MQTT_SAMPLE_SAMPLER_LOG_LEVEL);
@@ -18,29 +20,58 @@ LOG_MODULE_REGISTER(sampler, CONFIG_MQTT_SAMPLE_SAMPLER_LOG_LEVEL);
 /* Register subscriber */
 ZBUS_SUBSCRIBER_DEFINE(sampler, CONFIG_MQTT_SAMPLE_SAMPLER_MESSAGE_QUEUE_SIZE);
 
+
 static void sample(void)
 {
 	struct payload payload = { 0 };
-	uint32_t uptime = k_uptime_get_32();
-	int err, len;
+	//uint32_t uptime = k_uptime_get_32();
+	//int ext_sensors_bsec_init();
+	int err, len2;
+	double temperature= 0;
+	//int ext_sensors_init(ext_sensor_handler_t handler);
+	err = ext_sensors_init(ext_sensor_handler);
+	if (err) {
+		LOG_ERR("ext_sensors_init, error: %d", err);
+		return;
+	}
+	/* Request data from external sensors. */
+	err = ext_sensors_temperature_get(&temperature);
+	if (err) {
+		LOG_ERR("ext_sensors_temperature_get, error: %d", err);
+	}
+
+
+	
 
 	/* The payload is user defined and can be sampled from any source.
 	 * Default case is to populate a string and send it on the payload channel.
 	 */
 
-	len = snprintk(payload.string, sizeof(payload.string), FORMAT_STRING, uptime);
-	if ((len < 0) || (len >= sizeof(payload))) {
-		LOG_ERR("Failed to construct message, error: %d", len);
+	len2= snprintk(payload.string, sizeof(payload.string), TEMP_STRING, temperature);
+		if ((len2 < 0) || (len2 >= sizeof(payload))) {
+		LOG_ERR("Failed to construct message, error: %d", len2);
 		SEND_FATAL_ERROR();
 		return;
 	}
-
-	err = zbus_chan_pub(&PAYLOAD_CHAN, &payload, K_SECONDS(1));
+		err = zbus_chan_pub(&PAYLOAD_CHAN, &payload, K_SECONDS(1));
 	if (err) {
 		LOG_ERR("zbus_chan_pub, error:%d", err);
 		SEND_FATAL_ERROR();
 	}
-}
+
+// 	len = snprintk(payload.string, sizeof(payload.string), FORMAT_STRING, uptime);
+// 	if ((len < 0) || (len >= sizeof(payload))) {
+// 		LOG_ERR("Failed to construct message, error: %d", len);
+// 		SEND_FATAL_ERROR();
+// 		return;
+// 	}
+
+// 	err = zbus_chan_pub(&PAYLOAD_CHAN, &payload, K_SECONDS(1));
+// 	if (err) {
+// 		LOG_ERR("zbus_chan_pub, error:%d", err);
+// 		SEND_FATAL_ERROR();
+// 	}
+ }
 
 static void sampler_task(void)
 {
