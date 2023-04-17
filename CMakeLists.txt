@@ -18,6 +18,8 @@ add_subdirectory(src/modules/sampler)
 add_subdirectory(src/modules/network)
 add_subdirectory(src/modules/transport)
 add_subdirectory(src/modules/error)
+target_include_directories(app PRIVATE ${WEST_TOPDIR})
+
 
 # Optional modules
 add_subdirectory_ifdef(CONFIG_MQTT_SAMPLE_LED src/modules/led)
